@@ -15,17 +15,22 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
-    - name: Install bun
-      run: |
-        curl -fsSL https://bun.sh/install | bash
-        echo 'export BUN_INSTALL="$HOME/.bun"' >> $GITHUB_ENV
-        echo 'export PATH="$BUN_INSTALL/bin:$PATH"' >> $GITHUB_ENV
-        source $GITHUB_ENV
-
-    - name: Verify bun installation
-      run: bun --version
-
-    - name: Build
-      run: |
-        bun tauri build --verbose
+      - uses: actions/checkout@v4
+  
+      - name: Install bun
+        run: |
+          curl -fsSL https://bun.sh/install | bash
+          echo 'export BUN_INSTALL="$HOME/.bun"' >> $GITHUB_ENV
+          echo 'export PATH="$BUN_INSTALL/bin:$PATH"' >> $GITHUB_ENV
+  
+      - name: Load bun environment
+        run: |
+          echo 'BUN_INSTALL=$HOME/.bun' >> $GITHUB_ENV
+          echo 'PATH=$BUN_INSTALL/bin:$PATH' >> $GITHUB_ENV
+          source ~/.bashrc
+  
+      - name: Verify bun installation
+        run: echo $PATH && bun --version
+  
+      - name: Build
+        run: bun tauri build --verbose
