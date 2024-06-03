@@ -19,17 +19,18 @@ jobs:
     - name: Install bun
       run: |
         curl -fsSL https://bun.sh/install | bash
-        echo 'export BUN_INSTALL="$HOME/.bun"' >> ~/.bashrc
-        echo 'export PATH="$BUN_INSTALL/bin:$PATH"' >> ~/.bashrc
-        source ~/.bashrc
+        echo 'export BUN_INSTALL="$HOME/.bun"' >> ~/.profile
+        echo 'export PATH="$BUN_INSTALL/bin:$PATH"' >> ~/.profile
+        source ~/.profile
 
     - name: Verify bun installation
-      shell: bash -l {0}
       run: |
+        source ~/.profile
         echo $PATH
         bun --version
 
     - name: Build
-      shell: bash -l {0}
       run: |
+        source ~/.profile
         bun tauri build --verbose
+
