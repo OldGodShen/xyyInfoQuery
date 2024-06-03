@@ -16,8 +16,10 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+    - name: Install bun
+      run: |
+        curl -fsSL https://bun.sh/install
+
     - name: Build
       run: |
-        curl -fsSL https://bun.sh/install | bash
-        source /home/runner/.bashrc
         bun tauri build --verbose
