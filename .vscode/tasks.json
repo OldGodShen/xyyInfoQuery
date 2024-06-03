@@ -12,14 +12,14 @@
         "isBackground": true,
         // change this to your `beforeDevCommand`:
         "command": "bun",
-        "args": ["run dev"]
+        "args": ["dev"]
       },
       {
         "label": "ui:build",
         "type": "shell",
         // change this to your `beforeBuildCommand`:
         "command": "bun",
-        "args": ["run build"]
+        "args": ["build"]
       }
     ]
   }
