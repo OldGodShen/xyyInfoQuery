@@ -32,5 +32,6 @@ jobs:
     - name: Build
       run: |
         source ~/.profile
+        bun i
         bun tauri build --verbose
 
