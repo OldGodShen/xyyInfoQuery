@@ -11,27 +11,21 @@ env:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
 
     steps:
     - uses: actions/checkout@v4
 
     - name: Install bun
       run: |
-        curl -fsSL https://bun.sh/install | bash
-        echo 'export BUN_INSTALL="$HOME/.bun"' >> ~/.profile
-        echo 'export PATH="$BUN_INSTALL/bin:$PATH"' >> ~/.profile
-        source ~/.profile
+        powershell -c "irm bun.sh/install.ps1 | iex"
 
     - name: Verify bun installation
       run: |
-        source ~/.profile
-        echo $PATH
         bun --version
 
     - name: Build
       run: |
-        source ~/.profile
         bun i
         bun tauri build --verbose
 
