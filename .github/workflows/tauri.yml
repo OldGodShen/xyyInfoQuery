@@ -16,6 +16,11 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
+    - name: Install Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '16'  # 确保与项目要求的 Node.js 版本一致
+
     - name: Install bun
       run: powershell -c "irm bun.sh/install.ps1 | iex"
 
@@ -58,7 +63,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: D:\a\xyyInfoQuery\xyyInfoQuery\src-tauri\target\x86_64-pc-windows-msvc\release\bundle\msi\xyyinfoquery_${{ env.VERSION }}_x64_en-US.msi
+        asset_path: src-tauri/target/x86_64-pc-windows-msvc/release/bundle/msi/xyyinfoquery_${{ env.VERSION }}_x64_en-US.msi
         asset_name: xyyinfoquery_${{ env.VERSION }}_x64_en-US.msi
         asset_content_type: application/octet-stream
 
@@ -68,6 +73,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: D:\a\xyyInfoQuery\xyyInfoQuery\src-tauri\target\x86_64-pc-windows-msvc\release\bundle\nsis\xyyinfoquery_${{ env.VERSION }}_x64-setup.exe
+        asset_path: src-tauri/target/x86_64-pc-windows-msvc/release/bundle/nsis/xyyinfoquery_${{ env.VERSION }}_x64-setup.exe
         asset_name: xyyinfoquery_${{ env.VERSION }}_x64-setup.exe
         asset_content_type: application/octet-stream
