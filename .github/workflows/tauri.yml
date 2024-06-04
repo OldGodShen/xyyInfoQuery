@@ -38,6 +38,10 @@ jobs:
         toolchain: stable
         override: true
 
+    - name: Install Rust Android Target
+      if: matrix.platform == 'android'
+      run: rustup target add aarch64-linux-android
+
     - name: Set up JDK
       uses: actions/setup-java@v3
       with:
