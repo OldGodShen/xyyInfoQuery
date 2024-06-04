@@ -16,11 +16,6 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Install Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '16'  # 确保与项目要求的 Node.js 版本一致
-
     - name: Install bun
       run: powershell -c "irm bun.sh/install.ps1 | iex"
 
@@ -34,9 +29,38 @@ jobs:
     - name: Install dependencies
       run: bun install
 
+    - name: Install Rust
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+        override: true
+
+    - name: Set up JDK
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+
+    - name: Install Android NDK
+      uses: android-actions/setup-android@v2
+      with:
+        api-level: 21
+        ndk-version: 26.3.11579264
+
+    - name: Add Android SDK to PATH
+      run: echo "${{ runner.tool_cache }}/android-sdk/cmdline-tools/latest/bin" >> $env:GITHUB_PATH
+
+    - name: Install Android dependencies
+      run: sdkmanager "platforms;android-21" "build-tools;30.0.3" "ndk;26.3.11579264"
+
     - name: Build
       run: |
         bun tauri build --verbose
+
+    - name: Build Android APK
+      run: |
+        bun tauri android build --verbose
+      shell: pwsh
 
     - name: Extract version from package.json
       id: extract_version
@@ -76,3 +100,13 @@ jobs:
         asset_path: src-tauri/target/x86_64-pc-windows-msvc/release/bundle/nsis/xyyinfoquery_${{ env.VERSION }}_x64-setup.exe
         asset_name: xyyinfoquery_${{ env.VERSION }}_x64-setup.exe
         asset_content_type: application/octet-stream
+
+    - name: Upload APK Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: src-tauri/target/android/release/app-release.apk
+        asset_name: xyyinfoquery_${{ env.VERSION }}_android.apk
+        asset_content_type: application/vnd.android.package-archive
