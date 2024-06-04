@@ -20,9 +20,8 @@ jobs:
       run: powershell -c "irm bun.sh/install.ps1 | iex"
 
     - name: Add bun to PATH
+      run: echo "C:\Users\runneradmin\.bun\bin" >> $env:GITHUB_PATH
       shell: powershell
-      run: |
-        echo "##[add-path]C:\Users\runneradmin\.bun\bin"
 
     - name: Verify bun installation
       run: bun --version
