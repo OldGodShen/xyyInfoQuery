@@ -58,7 +58,7 @@ jobs:
     - name: Check NDK directory
       if: matrix.platform == 'android'
       run: |
-        if (Test-Path "C:\\hostedtoolcache\\windows\\android-sdk\\ndk\\21.3.6528147") {
+        if (Test-Path "C:\\hostedtoolcache\\windows\\android-sdk\\ndk\\26.3.11579264") {
           Write-Output "NDK directory exists."
         } else {
           Write-Output "NDK directory does not exist."
