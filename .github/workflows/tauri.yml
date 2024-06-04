@@ -41,7 +41,7 @@ jobs:
         distribution: 'temurin'
         java-version: '17'
 
-    - name: Install Android NDK
+    - name: Install Android SDK
       uses: android-actions/setup-android@v2
       with:
         api-level: 21
