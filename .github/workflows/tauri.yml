@@ -53,11 +53,11 @@ jobs:
 
     - name: Set up NDK_HOME environment variable
       if: matrix.platform == 'android'
-      run: echo "NDK_HOME=$env:ANDROID_SDK_ROOT/android-sdk/ndk/26.3.11579264" >> $env:GITHUB_ENV
+      run: echo "NDK_HOME=$env:ANDROID_SDK_ROOT/ndk/26.3.11579264" >> $env:GITHUB_ENV
 
     - name: Add Android SDK to PATH
       if: matrix.platform == 'android'
-      run: echo "$env:ANDROID_SDK_ROOT/android-sdk/cmdline-tools/latest/bin" >> $env:GITHUB_PATH
+      run: echo "$env:ANDROID_SDK_ROOT/cmdline-tools/latest/bin" >> $env:GITHUB_PATH
 
     - name: Install Android dependencies
       if: matrix.platform == 'android'
