@@ -17,17 +17,17 @@ jobs:
     - uses: actions/checkout@v4
 
     - name: Install bun
+      run: powershell -c "irm bun.sh/install.ps1 | iex"
+
+    - name: Add bun to PATH
+      shell: powershell
       run: |
-        powershell -c "irm bun.sh/install.ps1 | iex"
-        $env:PATH += ";C:\Users\runneradmin\.bun\bin"
+        echo "##[add-path]C:\Users\runneradmin\.bun\bin"
 
     - name: Verify bun installation
-      run: |
-        bun --version
+      run: bun --version
 
     - name: Build
       run: |
-        $env:PATH += ";C:\Users\runneradmin\.bun\bin"
         bun i
         bun tauri build --verbose
-
