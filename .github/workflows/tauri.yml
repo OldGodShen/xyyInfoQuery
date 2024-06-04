@@ -53,7 +53,7 @@ jobs:
 
     - name: Set up NDK_HOME environment variable
       if: matrix.platform == 'android'
-      run: echo "NDK_HOME=${{ runner.tool_cache }}/android-sdk/ndk/21.3.6528147" >> $env:GITHUB_ENV
+      run: echo "NDK_HOME=${{ runner.tool_cache }}/android-sdk/ndk/26.3.11579264" >> $env:GITHUB_ENV
 
     - name: Add Android SDK to PATH
       if: matrix.platform == 'android'
