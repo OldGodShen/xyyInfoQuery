@@ -19,6 +19,7 @@ jobs:
     - name: Install bun
       run: |
         powershell -c "irm bun.sh/install.ps1 | iex"
+        $env:PATH += ";C:\Users\runneradmin\.bun\bin"
 
     - name: Verify bun installation
       run: |
@@ -26,6 +27,7 @@ jobs:
 
     - name: Build
       run: |
+        $env:PATH += ";C:\Users\runneradmin\.bun\bin"
         bun i
         bun tauri build --verbose
 
