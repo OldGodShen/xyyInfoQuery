@@ -12,9 +12,6 @@ env:
 jobs:
   build:
     runs-on: windows-latest
-    strategy:
-      matrix:
-        platform: [windows, android]
         
     steps:
     - uses: actions/checkout@v4
@@ -32,14 +29,7 @@ jobs:
     - name: Install dependencies
       run: bun install
 
-    - name: Install Rust
-      uses: actions-rs/toolchain@v1
-      with:
-        toolchain: stable
-        override: true
-
     - name: Install Rust Android Target
-      if: matrix.platform == 'android'
       run: rustup target add aarch64-linux-android armv7-linux-androideabi
 
     - name: Set up JDK
@@ -49,31 +39,25 @@ jobs:
         java-version: '17'
 
     - name: Install Android SDK
-      if: matrix.platform == 'android'
       uses: android-actions/setup-android@v2
       with:
         api-level: 21
         ndk-version: 26.3.11579264
 
     - name: Set up NDK_HOME environment variable
-      if: matrix.platform == 'android'
       run: echo "NDK_HOME=$env:ANDROID_SDK_ROOT/ndk/26.3.11579264" >> $env:GITHUB_ENV
 
     - name: Add Android SDK to PATH
-      if: matrix.platform == 'android'
       run: echo "$env:ANDROID_SDK_ROOT/cmdline-tools/latest/bin" >> $env:GITHUB_PATH
 
     - name: Install Android dependencies
-      if: matrix.platform == 'android'
       run: sdkmanager "platforms;android-21" "build-tools;30.0.3" "ndk;26.3.11579264"
 
     - name: Build for Windows
-      if: matrix.platform == 'windows'
       run: |
         bun tauri build --verbose
 
     - name: Build Android APK
-      if: matrix.platform == 'android'
       run: |
         bun tauri android build --verbose
       shell: pwsh
@@ -98,18 +82,16 @@ jobs:
         prerelease: false
 
     - name: Upload MSI Asset
-      if: matrix.platform == 'windows'
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: src-tauri/target/x86_64-pc-windows-msvc/release/bundle/msi/xyyinfoquery_${{ env.VERSION }}_x64_en-US.msi
-        asset_name: xyyinfoquery_${{ env.VERSION }}_x64_en-US.msi
+        asset_path: src-tauri/target/x86_64-pc-windows-msvc/release/bundle/msi/xyyinfoquery_${{ env.VERSION }}_x64_zh-CN.msi
+        asset_name: xyyinfoquery_${{ env.VERSION }}_x64_zh-CN.msi
         asset_content_type: application/octet-stream
 
     - name: Upload EXE Asset
-      if: matrix.platform == 'windows'
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -120,7 +102,6 @@ jobs:
         asset_content_type: application/octet-stream
 
     - name: Upload APK Asset
-      if: matrix.platform == 'android'
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
