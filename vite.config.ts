@@ -1,27 +1,29 @@
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
-import { internalIpV4 } from "internal-ip";
+import { networkInterfaces } from 'os';
 
-// @ts-expect-error process is a nodejs global
 const mobile = !!/android|ios/.exec(process.env.TAURI_ENV_PLATFORM);
 
-async function getInternalIp() {
-  try {
-    const ip = await internalIpV4();
-    if (!ip) {
-      throw new Error("Internal IP is undefined");
+function getInternalIp() {
+  const nets = networkInterfaces();
+  let internalIp: string;
+
+  for (const name of Object.keys(nets)) {
+    for (const net of nets[name]) {
+      if (net.family === 'IPv4' && !net.internal) {
+        internalIp = net.address;
+        break;
+      }
     }
-    return ip;
-  } catch (error) {
-    console.error("Failed to get internal IP:", error);
-    // Fallback to a default IP or handle the error as needed
-    return "172.17.0.1";
+    if (internalIp) break;
   }
+
+  return internalIp;
 }
 
 // https://vitejs.dev/config/
 export default defineConfig(async () => {
-  const hmrHost = await getInternalIp();
+  const hmrHost = getInternalIp();
   console.log('Mobile:', mobile);
   console.log('HMR Host:', hmrHost);
 
