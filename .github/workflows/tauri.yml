@@ -65,15 +65,12 @@ jobs:
         KEYSTORE_FILE: ${{ secrets.KEYSTORE_FILE }}
         KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
         KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-      shell: cmd
+      shell: base
       run: |
-        # Save the keystore file from secrets
         echo "${{ secrets.KEYSTORE_FILE }}" | base64 -d > release.keystore
 
-        # Sign the APK
         apksigner sign --ks release.keystore --ks-key-alias $KEY_ALIAS --ks-pass pass:$KEYSTORE_PASSWORD --out src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-signed.apk src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-unsigned.apk 
 
-        # Align the APK
         zipalign -v 4 src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-signed.apk src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-aligned.apk
 
     - name: Extract version from package.json
