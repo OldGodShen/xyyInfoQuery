@@ -21,7 +21,6 @@ jobs:
 
     - name: Add bun to PATH
       run: echo "C:\Users\runneradmin\.bun\bin" >> $env:GITHUB_PATH
-      shell: powershell
 
     - name: Verify bun installation
       run: bun --version
@@ -30,7 +29,7 @@ jobs:
       run: bun install
 
     - name: Install Rust Android Target
-      run: rustup target add aarch64-linux-android armv7-linux-androideabi
+      run: rustup target add aarch64-linux-android armv7-linux-androideabi i686-linux-android x86_64-linux-android
 
     - name: Set up JDK
       uses: actions/setup-java@v3
@@ -39,19 +38,16 @@ jobs:
         java-version: '17'
 
     - name: Install Android SDK
-      uses: android-actions/setup-android@v2
-      with:
-        api-level: 21
-        ndk-version: 26.3.11579264
-
-    - name: Set up NDK_HOME environment variable
-      run: echo "NDK_HOME=$env:ANDROID_SDK_ROOT/ndk/26.3.11579264" >> $env:GITHUB_ENV
+      uses: android-actions/setup-android@v3
 
     - name: Add Android SDK to PATH
       run: echo "$env:ANDROID_SDK_ROOT/cmdline-tools/latest/bin" >> $env:GITHUB_PATH
 
     - name: Install Android dependencies
-      run: sdkmanager "platforms;android-21" "build-tools;30.0.3" "ndk;26.3.11579264"
+      run: sdkmanager "platforms;android-21" "build-tools;30.4.0" "ndk;26.3.11579264"
+
+    - name: Set up NDK_HOME environment variable
+      run: echo "NDK_HOME=$env:ANDROID_SDK_ROOT/ndk/26.3.11579264" >> $env:GITHUB_ENV
 
     - name: Build for Windows
       run: |
@@ -60,7 +56,21 @@ jobs:
     - name: Build Android APK
       run: |
         bun tauri android build --verbose
-      shell: pwsh
+
+    - name: Sign APK
+      env:
+        KEYSTORE_FILE: ${{ secrets.KEYSTORE_FILE }}
+        KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+        KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+      run: |
+        # Save the keystore file from secrets
+        echo "${{ secrets.KEYSTORE_FILE }}" | base64 -d > release.keystore
+
+        # Sign the APK
+        $env:ANDROID_SDK_ROOT/build-tools/30.4.0/apksigner sign --ks release.keystore --ks-key-alias $KEY_ALIAS --ks-pass $KEYSTORE_PASSWORD src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-signed.apk src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-unsigned.apk 
+
+        # Align the APK
+        $env:ANDROID_SDK_ROOT/build-tools/30.4.0/zipalign -v 4 src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-signed.apk src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-aligned.apk
 
     - name: Extract version from package.json
       id: extract_version
@@ -68,7 +78,6 @@ jobs:
         $packageJson = Get-Content -Raw -Path package.json | ConvertFrom-Json
         $version = $packageJson.version
         echo "VERSION=$version" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8
-      shell: pwsh
 
     - name: Create Release
       id: create_release
@@ -107,6 +116,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: src-tauri/target/android/release/app-release.apk
-        asset_name: xyyinfoquery_${{ env.VERSION }}_android.apk
+        asset_path: src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-aligned.apk
+        asset_name: xyyinfoquery_${{ env.VERSION }}_universal.apk
         asset_content_type: application/vnd.android.package-archive
