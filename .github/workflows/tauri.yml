@@ -46,6 +46,9 @@ jobs:
     - name: Install Android dependencies
       run: sdkmanager "platforms;android-21" "build-tools;34.0.0" "ndk;26.3.11579264"
 
+    - name: Add Android build-tools to PATH
+      run: echo "$env:ANDROID_SDK_ROOT/build-tools/34.0.0" >> $env:GITHUB_PATH
+
     - name: Set up NDK_HOME environment variable
       run: echo "NDK_HOME=$env:ANDROID_SDK_ROOT/ndk/26.3.11579264" >> $env:GITHUB_ENV
 
@@ -62,15 +65,16 @@ jobs:
         KEYSTORE_FILE: ${{ secrets.KEYSTORE_FILE }}
         KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
         KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+      shell: cmd
       run: |
         # Save the keystore file from secrets
         echo "${{ secrets.KEYSTORE_FILE }}" | base64 -d > release.keystore
 
         # Sign the APK
-        $env:ANDROID_SDK_ROOT/build-tools/34.0.0/apksigner sign --ks release.keystore --ks-key-alias $KEY_ALIAS --ks-pass $KEYSTORE_PASSWORD src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-signed.apk src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-unsigned.apk 
+        apksigner sign --ks release.keystore --ks-key-alias $KEY_ALIAS --ks-pass pass:$KEYSTORE_PASSWORD --out src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-signed.apk src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-unsigned.apk 
 
         # Align the APK
-        $env:ANDROID_SDK_ROOT/build-tools/34.0.0/zipalign -v 4 src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-signed.apk src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-aligned.apk
+        zipalign -v 4 src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-signed.apk src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-aligned.apk
 
     - name: Extract version from package.json
       id: extract_version
