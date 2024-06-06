@@ -69,7 +69,7 @@ jobs:
       run: |
         echo "${{ secrets.KEYSTORE_FILE }}" | base64 -d > release.keystore
 
-        apksigner sign --ks release.keystore --ks-key-alias $KEY_ALIAS --ks-pass pass:$KEYSTORE_PASSWORD --out src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-signed.apk src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-unsigned.apk 
+        apksigner.bat sign --ks release.keystore --ks-key-alias $KEY_ALIAS --ks-pass pass:$KEYSTORE_PASSWORD --out src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-signed.apk src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-unsigned.apk 
 
         zipalign -v 4 src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-signed.apk src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-aligned.apk
 
