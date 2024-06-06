@@ -1,4 +1,4 @@
-name: Tauri
+name: Tauri CI
 
 on:
   push:
@@ -76,8 +76,8 @@ jobs:
     - name: Extract version from package.json
       id: extract_version
       run: |
-        $packageJson = Get-Content -Raw -Path package.json | ConvertFrom-Json
-        $version = $packageJson.version
+        $tauriconfJson = Get-Content -Raw -Path src-tauri\tauri.conf.json | ConvertFrom-Json
+        $version = $tauriconfJson.version
         echo "VERSION=$version" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8
 
     - name: Create Release
