@@ -1,6 +1,6 @@
 {
   "productName": "xyyinfoquery",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "identifier": "com.oldgodshen.xyyinfoquery",
   "build": {
     "beforeDevCommand": "bun run dev",
@@ -35,7 +35,6 @@
       "allowDowngrades": false,
       "certificateThumbprint": null,
       "digestAlgorithm": null,
-      "nsis": null,
       "signCommand": null,
       "timestampUrl": null,
       "tsp": false,
@@ -46,6 +45,12 @@
       },
       "wix": {
         "language": "zh-CN"
+      },
+      "nsis": {
+        "languages": [
+          "SimpChinese",
+          "English"
+        ]
       }
     }
   }
