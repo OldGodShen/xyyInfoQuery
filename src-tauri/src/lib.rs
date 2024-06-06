@@ -5,17 +5,13 @@ use serde::{Deserialize, Serialize};
 use serde_json::json;
 use tauri::async_runtime::Mutex;
 
-// Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
-#[tauri::command]
-fn greet(name: &str) -> String {
-    format!("Hello, {}! You've been greeted from Rust!", name)
-}
+// Learn more about Tauri commands at https://tauri.app/v1/guides/features/
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
-        .invoke_handler(tauri::generate_handler![greet, cardNoQuery])
+        .invoke_handler(tauri::generate_handler![cardNoQuery])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
@@ -26,7 +22,7 @@ async fn cardNoQuery(card_no: &str) -> Result<String, String> {
     let current_card_no: u32 = match card_no.parse() {
         Ok(num) => num,
         Err(_) => {
-            return Ok("Invalid card number".to_string()); // 返回一个错误消息
+            return Ok(format!("你是说你的卡号不止10位¿")); // 返回一个错误消息
         }
     };
 
@@ -47,7 +43,7 @@ async fn cardNoQuery(card_no: &str) -> Result<String, String> {
                             if let Ok(data) = process_user_info(&org_info, &user_details) {
                                 collected_data = data; // 如果成功，将结果赋值给 collected_data
                             } else {
-                                return Ok("Failed to process user info".to_string()); // 返回一个错误消息
+                                return Ok(format!("卡号{}并不存在",current_card_no)); // 返回一个错误消息
                             }
                         }
                     } else if let Some(reserve_order_resps) = api_response.reserveOrderResps {
@@ -58,7 +54,7 @@ async fn cardNoQuery(card_no: &str) -> Result<String, String> {
                                     if let Ok(data) = process_user_info(&org_info, &user_details) {
                                         collected_data = data; // 如果成功，将结果赋值给 collected_data
                                     } else {
-                                        return Ok("Failed to process user info".to_string()); // 返回一个错误消息
+                                        return Ok(format!("卡号{}并不存在",current_card_no)); // 返回一个错误消息
                                     }
                                 }
                             }
@@ -67,10 +63,10 @@ async fn cardNoQuery(card_no: &str) -> Result<String, String> {
                 }
             }
             if collected_data.is_empty() {
-                return Ok("Failed to get user info".to_string()); // 返回一个错误消息，当没有收集到数据时
+                return Ok(format!("卡号{}并不存在",current_card_no)); // 返回一个错误消息，当没有收集到数据时
             }
         }
-        Err(e) => return Ok(format!("Error processing card {}: {:?}", current_card_no, e)), // 返回一个错误消息
+        Err(e) => return Ok(format!("服务器响应失败, {:?}",e)), // 返回一个错误消息
     }
     Ok(collected_data) // 返回收集到的处理后的数据
 }
