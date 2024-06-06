@@ -44,7 +44,7 @@ jobs:
       run: echo "$env:ANDROID_SDK_ROOT/cmdline-tools/latest/bin" >> $env:GITHUB_PATH
 
     - name: Install Android dependencies
-      run: sdkmanager "platforms;android-21" "build-tools;34.0.0" "ndk;26.3.11579264"
+      run: sdkmanager "platforms;android-24" "build-tools;34.0.0" "ndk;26.3.11579264"
 
     - name: Add Android build-tools to PATH
       run: echo "$env:ANDROID_SDK_ROOT/build-tools/34.0.0" >> $env:GITHUB_PATH
@@ -69,9 +69,9 @@ jobs:
       run: |
         echo "${{ secrets.KEYSTORE_FILE }}" | base64 -d > release.keystore
 
-        apksigner.bat sign --ks release.keystore --ks-key-alias $KEY_ALIAS --ks-pass pass:$KEYSTORE_PASSWORD --out src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-signed.apk src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-unsigned.apk 
+        zipalign -v 4 src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-unsigned.apk src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-aligned.apk
 
-        zipalign -v 4 src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-signed.apk src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-aligned.apk
+        apksigner.bat sign --ks release.keystore --ks-key-alias $KEY_ALIAS --ks-pass pass:$KEYSTORE_PASSWORD --out src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-signed.apk src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-aligned.apk
 
     - name: Extract version from package.json
       id: extract_version
