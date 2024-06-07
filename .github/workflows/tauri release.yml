@@ -171,3 +171,28 @@ jobs:
         asset_path: src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-signed.apk
         asset_name: xyyinfoquery_${{ env.VERSION }}_universal.apk
         asset_content_type: application/vnd.android.package-archive
+
+    - name: Calculate Next Version
+      id: calculate_version
+      run: |
+        $currentVersion = "${{ env.VERSION }}"
+        $versionParts = $currentVersion.Split('.')
+        $versionParts[2] = [int]$versionParts[2] + 1
+        $newVersion = "$($versionParts[0]).$($versionParts[1]).$($versionParts[2])"
+        echo "NEW_VERSION=$newVersion" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8
+
+    - name: Update Version
+      run: bun update-version.ts ${{ env.NEW_VERSION }}
+
+    - name: Commit and Push Changes
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git checkout main
+        git add src-tauri/package.json
+        git add src-tauri/Cargo.toml
+        git add src-tauri/tauri.conf.json
+        git commit -m "Update version to v${{ env.NEW_VERSION }}"
+        git push origin main
