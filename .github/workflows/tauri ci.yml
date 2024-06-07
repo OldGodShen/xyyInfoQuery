@@ -1,0 +1,99 @@
+name: Tauri CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    runs-on: windows-latest
+        
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install bun
+      run: powershell -c "irm bun.sh/install.ps1 | iex"
+
+    - name: Add bun to PATH
+      run: echo "C:\Users\runneradmin\.bun\bin" >> $env:GITHUB_PATH
+
+    - name: Verify bun installation
+      run: bun --version
+
+    - name: Install dependencies
+      run: bun install
+
+    - name: Install Rust Android Target
+      run: rustup target add aarch64-linux-android armv7-linux-androideabi i686-linux-android x86_64-linux-android
+
+    - name: Set up JDK
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+
+    - name: Install Android SDK
+      uses: android-actions/setup-android@v3
+
+    - name: Add Android SDK to PATH
+      run: echo "$env:ANDROID_SDK_ROOT/cmdline-tools/latest/bin" >> $env:GITHUB_PATH
+
+    - name: Install Android dependencies
+      run: sdkmanager "platforms;android-24" "build-tools;34.0.0" "ndk;26.3.11579264"
+
+    - name: Add Android build-tools to PATH
+      run: echo "$env:ANDROID_SDK_ROOT/build-tools/34.0.0" >> $env:GITHUB_PATH
+
+    - name: Set up NDK_HOME environment variable
+      run: echo "NDK_HOME=$env:ANDROID_SDK_ROOT/ndk/26.3.11579264" >> $env:GITHUB_ENV
+
+    - name: Build for Windows
+      run: |
+        bun tauri build --verbose
+
+    - name: Build Android APK
+      run: |
+        bun tauri android build --verbose
+
+    - name: Sign APK
+      env:
+        KEYSTORE_FILE: ${{ secrets.KEYSTORE_FILE }}
+        KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+        KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+      shell: bash
+      run: |
+        echo "${{ secrets.KEYSTORE_FILE }}" | base64 -d > release.keystore
+
+        zipalign -v 4 src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-unsigned.apk src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-aligned.apk
+
+        apksigner.bat sign --ks release.keystore --ks-key-alias $KEY_ALIAS --ks-pass pass:$KEYSTORE_PASSWORD --out src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-signed.apk src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-aligned.apk
+
+    - name: Extract version from package.json
+      id: extract_version
+      run: |
+        $tauriconfJson = Get-Content -Raw -Path src-tauri\tauri.conf.json | ConvertFrom-Json
+        $version = $tauriconfJson.version
+        echo "VERSION=$version" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8
+
+    - name: Upload MSI Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: xyyinfoquery_ci_${{ env.VERSION }}_x64_zh-CN.msi
+        path: src-tauri/target/x86_64-pc-windows-msvc/release/bundle/msi/xyyinfoquery_${{ env.VERSION }}_x64_zh-CN.msi
+
+    - name: Upload EXE Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: xyyinfoquery_ci_${{ env.VERSION }}_x64-setup.exe
+        path: src-tauri/target/x86_64-pc-windows-msvc/release/bundle/nsis/xyyinfoquery_${{ env.VERSION }}_x64-setup.exe
+
+    - name: Upload APK Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: xyyinfoquery_ci_${{ env.VERSION }}_universal.apk
+        path: src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-signed.apk
