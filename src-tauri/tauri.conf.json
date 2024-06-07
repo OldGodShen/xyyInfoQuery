@@ -1,6 +1,6 @@
 {
   "productName": "xyyinfoquery",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "identifier": "com.oldgodshen.xyyinfoquery",
   "build": {
     "beforeDevCommand": "bun run dev",
@@ -25,7 +25,11 @@
       "minSdkVersion": 24
     },
     "active": true,
-    "targets": ["nsis","msi","updater"],
+    "targets": [
+      "nsis",
+      "msi",
+      "updater"
+    ],
     "publisher": "OldGodShen",
     "icon": [
       "icons/32x32.png",
