@@ -191,7 +191,7 @@ jobs:
         git config --global user.name "github-actions[bot]"
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
         git checkout main
-        git add src-tauri/package.json
+        git add package.json
         git add src-tauri/Cargo.toml
         git add src-tauri/tauri.conf.json
         git commit -m "Update version to v${{ env.NEW_VERSION }}"

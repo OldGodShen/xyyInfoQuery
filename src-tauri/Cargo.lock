@@ -4483,7 +4483,7 @@ dependencies = [
 
 [[package]]
 name = "xyyinfoquery"
-version = "0.0.4"
+version = "0.0.5"
 dependencies = [
  "reqwest",
  "serde",
