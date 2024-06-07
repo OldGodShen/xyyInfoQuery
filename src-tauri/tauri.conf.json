@@ -1,5 +1,5 @@
 {
-  "productName": "新迎园信息查询",
+  "productName": "xyyinfoquery",
   "version": "0.0.4",
   "identifier": "com.oldgodshen.xyyinfoquery",
   "build": {
@@ -21,8 +21,11 @@
     }
   },
   "bundle": {
+    "android": {
+      "minSdkVersion": 24
+    },
     "active": true,
-    "targets": "all",
+    "targets": ["nsis","msi","updater"],
     "publisher": "OldGodShen",
     "icon": [
       "icons/32x32.png",
