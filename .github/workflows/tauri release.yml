@@ -109,7 +109,7 @@ jobs:
 
     - name: Build Android APK
       run: |
-        bun tauri android build --verbose
+        bun tauri android build --target aarch64 --verbose
 
     - name: Sign APK
       env:
